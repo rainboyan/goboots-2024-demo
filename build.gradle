@@ -1,0 +1,148 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://repo.grails.org/grails/core" }
+        maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://repo.spring.io/snapshot" }
+    }
+    dependencies {
+        classpath "org.grails.plugins:asset-pipeline-gradle:7.0.0-M1"
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
+    }
+}
+
+version "0.1"
+group "org.rainboyan.demo"
+
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"war"
+apply plugin:"com.github.erdi.webdriver-binaries"
+apply plugin:"org.grails.asset-pipeline"
+apply plugin:"org.grails.grails-web"
+apply plugin:"org.grails.grails-gsp"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://repo.spring.io/snapshot" }
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+        exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
+    }
+}
+
+dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    console "org.grails:grails-console"
+    implementation "org.grails:grails-boot"
+    implementation "org.grails:grails-core"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails:grails-plugin-codecs"
+    implementation "org.grails:grails-plugin-controllers"
+    implementation "org.grails:grails-plugin-converters"
+    implementation "org.grails:grails-plugin-databinding"
+    implementation "org.grails:grails-plugin-datasource"
+    implementation "org.grails:grails-plugin-domain-class"
+    implementation "org.grails:grails-plugin-dynamic-modules"
+    implementation "org.grails:grails-plugin-gsp"
+    implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails:grails-plugin-management"
+    implementation "org.grails:grails-plugin-rest"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-url-mappings"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:async"
+    implementation "org.grails.plugins:scaffolding"
+    implementation "org.grails.plugins:fields"
+    implementation "org.grails.plugins:hibernate5"
+    implementation "org.hibernate:hibernate-core-jakarta:5.6.15.Final"
+    implementation "org.grails.plugins:database-migration:4.2.0"
+    implementation "org.grails.plugins:events"
+    implementation "org.grails.plugins:geb"
+    profile "org.grails.profiles:web-clean"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    runtimeOnly "org.grails.plugins:asset-pipeline-grails:7.0.0-M1"
+    testImplementation "org.grails:grails-test-support"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.grails.plugins:geb"
+    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:4.11.0"
+    testImplementation "org.seleniumhq.selenium:selenium-api:4.11.0"
+    testImplementation "org.seleniumhq.selenium:selenium-support:4.11.0"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.11.0"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:4.11.0"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+bootRun {
+    ignoreExitValue true
+    jvmArgs(
+        '-Dspring.output.ansi.enabled=always', 
+        '-XX:TieredStopAtLevel=1',
+        '-Xmx1024m')
+    sourceResources sourceSets.main
+    String springProfilesActive = 'spring.profiles.active'
+    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+tasks.withType(GroovyCompile) {
+    configure(groovyOptions) {
+        forkOptions.jvmArgs = ['-Xmx1024m']
+    }
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+webdriverBinaries {
+    if (!System.getenv().containsKey('GITHUB_ACTIONS')) {
+        chromedriver {
+            version = '2.45.0'
+            fallbackTo32Bit = true
+        }
+        geckodriver '0.30.0'
+    }
+}
+
+tasks.withType(Test) {
+    systemProperty "geb.env", System.getProperty('geb.env')
+    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
+    if (!System.getenv().containsKey('GITHUB_ACTIONS')) {
+        systemProperty 'webdriver.chrome.driver', System.getProperty('webdriver.chrome.driver')
+        systemProperty 'webdriver.gecko.driver', System.getProperty('webdriver.gecko.driver')
+    } else {
+        systemProperty 'webdriver.chrome.driver', "${System.getenv('CHROMEWEBDRIVER')}/chromedriver"
+        systemProperty 'webdriver.gecko.driver', "${System.getenv('GECKOWEBDRIVER')}/geckodriver"
+    }
+}
+
+
+assets {
+    minifyJs = true
+    minifyCss = true
+}
