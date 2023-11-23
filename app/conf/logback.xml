@@ -15,5 +15,6 @@
         <appender-ref ref="STDOUT" />
     </root>
     <logger name="org.springframework.core.LocalVariableTableParameterNameDiscoverer" level="error"/>
+    <logger name="org.hibernate.orm.deprecation" level="error"/>
     <logger name="org.rainboyan.demo" level="debug" />
 </configuration>
