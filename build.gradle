@@ -8,7 +8,7 @@ buildscript {
         maven { url "https://repo.spring.io/snapshot" }
     }
     dependencies {
-        classpath "org.grails.plugins:asset-pipeline-gradle:7.0.0-M3"
+        classpath "org.grails.plugins:asset-pipeline-gradle:7.0.0-RC1"
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
     }
@@ -70,11 +70,11 @@ dependencies {
     implementation "org.grails.plugins:fields"
     implementation "org.grails.plugins:hibernate5"
     implementation "org.hibernate:hibernate-core-jakarta:5.6.15.Final"
-    // implementation "org.grails:grails-plugin-database-migration:5.5.0-M1"
+    implementation "org.grails:grails-plugin-database-migration:7.0.0-M1"
     profile "org.grails.profiles:web-clean"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "org.grails.plugins:asset-pipeline-grails:7.0.0-M3"
+    runtimeOnly "org.grails.plugins:asset-pipeline-grails:7.0.0-RC1"
     testImplementation "org.grails:grails-test-support"
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.grails.plugins:geb"
